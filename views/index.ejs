@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+	<body>
+		<h1>Welcome</h1>
+		<p>Enter your url here: </p>
+		<form>
+			<textarea type="text" placeholder="https://www.google.com" id="url" name="url" rows="10" cols="100"></textarea>
+			<input type="submit">
+		</form>
+		<p id="error" style="color: red"></p>
+			<h2>Here: </h2>
+			<a id="shortened" href="/"></a>
+		<script>
+		const form = document.querySelector("form");
+		const input = document.getElementById("url");
+		const error = document.getElementById("error");
+		const shortened = document.getElementById("shortened");
+		form.addEventListener('submit', async function(e){
+			e.preventDefault();
+			if (input.value.trim().length === 0)
+			{
+				error.innerText = "Enter url before submitting";
+				return;
+			}
+			try{
+				error.innerText = "";
+				// send api request
+				const response = await fetch("http://localhost:5000/", {
+					method: "POST",
+					body: JSON.stringify({input: input.value}),
+					headers: {
+						"Content-type": "application/json; charset=UTF-8"
+					}
+				});	
+				const {encryptedData} = await response.json();
+				updateDisplay(encryptedData);
+			}
+			catch(error)
+			{
+				error.innerText = error.message;
+			}
+
+		})
+		function updateDisplay(encryptedData)
+		{
+			if (!encryptedData) return;
+			const url = "http://localhost:5000/?redirect=" + encryptedData;
+			shortened.href = url
+			shortened.innerText = url;
+		}
+		</script>
+	</body>
+
+
+</html>
